@@ -1,0 +1,4 @@
+1000W 48V BLDC Motor with 1000PPR Rotary Encoder
+This is a placeholder for the 1000W 48V BLDC motor image.
+The motor is a high-performance brushless DC motor with a 1000 pulse-per-revolution rotary encoder.
+It is designed for high-torque applications and precise position control.

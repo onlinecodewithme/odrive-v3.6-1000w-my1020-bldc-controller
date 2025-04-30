@@ -1,0 +1,4 @@
+ODrive v3.6 Controller - 48V
+This is a placeholder for the ODrive v3.6 controller image.
+The ODrive is a high-performance motor controller designed for robotics applications.
+It features dual-axis control, closed-loop position, velocity, and current control.
