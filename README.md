@@ -6,7 +6,7 @@ This repository contains scripts to backup ODrive configurations and control ODr
 
 ### ODrive Controller
 
-![ODrive v3.6 Controller](images/odrive_controller.jpg)
+![ODrive v3.6 Controller](images/odrive_controller.png)
 
 The ODrive v3.6 is a high-performance motor controller designed for robotics applications. It features dual-axis control, closed-loop position, velocity, and current control.
 
