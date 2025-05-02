@@ -48,6 +48,7 @@ The current configuration has been optimized for fast response time. The key par
 
 - `backup_current_config.py` - Script to backup the current ODrive configuration as odrivetool commands
 - `motor_control.py` - Simple program to control motor velocity and position
+- `arrow_key_control.py` - Script to control the robot using keyboard arrow keys
 - `odrive_backups/` - Directory containing backup files
 - `old/` - Directory containing old scripts and files (for reference only)
 
@@ -111,6 +112,40 @@ In interactive mode, you can:
 - Get robot status (`status`)
 - Clear errors (`clear`)
 - Exit the program (`q`)
+
+### Arrow Key Control
+
+The `arrow_key_control.py` script provides an intuitive way to control the robot using keyboard keys. This makes manual control much easier, especially for testing and demonstrations.
+
+**Usage:**
+```bash
+# Run the arrow key control script
+python3 arrow_key_control.py
+```
+
+**Controls:**
+- `w` or `↑` (Up Arrow) - Move forward
+- `s` or `↓` (Down Arrow) - Move backward
+- `a` or `←` (Left Arrow) - Turn left
+- `d` or `→` (Right Arrow) - Turn right
+- `+` or `=` - Increase velocity
+- `-` or `_` - Decrease velocity
+- `Space` - Stop robot (puts motors in IDLE mode)
+- `q` or `Esc` - Exit
+
+The arrow key control script automatically handles the transition between IDLE mode and closed loop control:
+- When you press Space to stop, the motors are set to IDLE mode to reduce power consumption and motor wear
+- When you press any movement key, the script automatically switches back to closed loop control
+
+### Power-Saving Mode
+
+The motor control system now includes a power-saving feature that automatically changes the axis mode to IDLE when the robot is stopped. This provides several benefits:
+
+1. **Reduced Power Consumption**: Motors consume less power in IDLE mode
+2. **Reduced Motor Wear**: Motors generate less heat when not actively holding position
+3. **Extended Battery Life**: Important for battery-powered robots
+
+When any velocity command is received, the system automatically switches back to closed loop control mode, ensuring seamless operation. This feature is implemented in both the `motor_control.py` and `arrow_key_control.py` scripts.
 
 ### Calibration
 
@@ -247,6 +282,7 @@ The script provides several ways to control the robot's movement:
 1. **Basic Movement Commands**: Simple forward, backward, left, and right commands.
 2. **Differential Drive Control**: Control the robot with linear and angular velocity.
 3. **Direct Wheel Control**: Set the velocity or position of each wheel independently.
+4. **Keyboard Control**: Use arrow keys or WASD keys for intuitive manual control.
 
 #### Motor Direction Configuration
 
@@ -339,6 +375,7 @@ Follow these steps to test the ODrive motor control system:
    ./motor_control.py velocity 0.0 0.0
    ```
    - Verify that the motor stops smoothly
+   - Verify that the motors switch to IDLE mode when stopped
 
 ### Advanced Tests
 
@@ -366,9 +403,17 @@ Follow these steps to test the ODrive motor control system:
     - Try various commands in interactive mode
     - Test different velocities and movement patterns
 
+11. **Test Arrow Key Control**
+    ```bash
+    python3 arrow_key_control.py
+    ```
+    - Test controlling the robot with keyboard keys
+    - Verify that the motors switch to IDLE mode when stopped (Space key)
+    - Verify that the motors switch back to closed loop control when movement keys are pressed
+
 ### Production Setup Tests
 
-11. **Test No-Movement Calibration**
+12. **Test No-Movement Calibration**
     ```bash
     # Generate pre-calibrated configuration
     ./generate_precalibrated_config.py
@@ -378,13 +423,27 @@ Follow these steps to test the ODrive motor control system:
     ```
     - Verify that the motor moves without requiring calibration
 
-12. **Verify Error Handling**
+13. **Verify Error Handling**
     - Intentionally create an error (e.g., block the motor)
     - Check error status and clear errors
     ```bash
     ./motor_control.py status
     ./motor_control.py clear
     ```
+
+14. **Test Power-Saving Mode**
+    ```bash
+    # Start moving
+    ./motor_control.py forward 5.0
+    # Wait a moment, then stop
+    ./motor_control.py velocity 0.0 0.0
+    # Check status to verify IDLE mode
+    ./motor_control.py status
+    # Start moving again to verify automatic mode switching
+    ./motor_control.py forward 5.0
+    ```
+    - Verify that the motors switch to IDLE mode when stopped
+    - Verify that the motors automatically switch back to closed loop control when movement commands are sent
 
 ## Troubleshooting
 
@@ -404,4 +463,3 @@ If you encounter any issues with the motor control:
 5. Clear any errors:
    ```python
    odrv0.clear_errors()
-   ```

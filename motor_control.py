@@ -407,7 +407,23 @@ def set_wheel_velocity_gradual(odrv, left_vel, right_vel, steps=10, delay=0.02):
         steps: Number of steps to reach the target velocity (default: 10)
         delay: Delay between steps in seconds (default: 0.02)
     """
-    # Make sure we're in closed loop control
+    # Check if axes are in IDLE mode and switch to closed loop control if needed
+    axes_to_check = [(0, odrv.axis0), (1, odrv.axis1)]
+    for i, axis in axes_to_check:
+        if axis.current_state == 1:  # AXIS_STATE_IDLE
+            print(f"Axis{i} is in IDLE mode. Switching to closed loop control...")
+            axis.requested_state = 8  # AXIS_STATE_CLOSED_LOOP_CONTROL
+            time.sleep(0.5)
+            
+            # Check if we successfully entered closed loop control
+            if axis.current_state != 8:
+                print(f"Failed to enter closed loop control for axis{i}. Current state: {axis.current_state}")
+                check_errors(odrv, i)
+                return False
+            else:
+                print(f"Successfully switched axis{i} from IDLE to closed loop control mode.")
+    
+    # Make sure we're in closed loop control for both axes
     if not enter_closed_loop_control(odrv):
         return False
     
@@ -558,6 +574,7 @@ def stop_robot(odrv):
     """Stop the robot."""
     print("Stopping robot...")
     
+    # First set velocity to 0 to ensure smooth stop
     # Check current control mode for each axis
     axis0_mode = odrv.axis0.controller.config.control_mode
     axis1_mode = odrv.axis1.controller.config.control_mode
@@ -574,7 +591,15 @@ def stop_robot(odrv):
         # Keep current position
         odrv.axis1.controller.input_pos = odrv.axis1.encoder.pos_estimate
     
-    print("Robot stopped.")
+    # Wait a moment for the robot to come to a stop
+    time.sleep(0.2)
+    
+    # Change axis mode to IDLE for both axes
+    print("Changing axis mode to IDLE...")
+    odrv.axis0.requested_state = 1  # AXIS_STATE_IDLE
+    odrv.axis1.requested_state = 1  # AXIS_STATE_IDLE
+    
+    print("Robot stopped and motors set to IDLE mode.")
     return True
 
 def get_robot_status(odrv):
